@@ -6,8 +6,15 @@ import Rank from './components/Rank/Rank.jsx';
 import { useCallback } from "react";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
+import FaceRecognition from './components/FaceRecognition/FaceRecognition.jsx';
 import './App.css';
+import Clarifai from "clarifai";
 
+const app = new Clarifai.App({
+    apiKey: 'fcd32579849648128bc56ebad0535040'
+   });
+
+// Section that I can't put anywhere else about the settings of my backgroud particles
 const particleOptions =  {
   background: {
       color: {
@@ -58,7 +65,7 @@ const particleOptions =  {
               default: "bounce",
           },
           random: false,
-          speed: 3,
+          speed: 2,
           straight: false,
       },
       number: {
@@ -81,8 +88,16 @@ const particleOptions =  {
   detectRetina: true,
 }
 
+
+
 function App() {
-  const particlesInit = useCallback(async engine => {
+
+    //state
+    const [input, setInput] = useState('');
+    const [imageURL, setImageURL] = useState('');
+
+    //particle functions
+    const particlesInit = useCallback(async engine => {
     console.log(engine);
     await loadFull(engine);
     }, []);
@@ -91,14 +106,42 @@ function App() {
         await console.log(container);
       }, []);
 
+    
+    
+    //Event functions 
+
+    const onInputChange = (e) => {
+        setInput(e.target.value);
+    }
+
+    const onSubmit = () => {
+        setImageURL(input);
+        console.log('click');
+        
+        app.models
+        .predict(
+          {
+            id: 'face-detection',
+            name: 'face-detection',
+            version: '6dc7e46bc9124c5c8824be4822abe105',
+            type: 'visual-detector',
+          }, input)
+        .then(response => {
+          console.log('hi', response)
+        })
+        .catch(err => console.log(err));
+    }
+
+
+
       return (
     <div className="App">
-      <div className='particles'><Particles  id="tsparticles" init={particlesInit} loaded={particlesLoaded} options={particleOptions}/></div>
+      <Particles className='particles' id="tsparticles" init={particlesInit} loaded={particlesLoaded} options={particleOptions}/>
       <Navigation />
       <Logo />
       <Rank/>
-      <ImageLinkForm />
-      {/* <FaceRecognition /> */}
+      <ImageLinkForm onInputChange={onInputChange} onSubmit={onSubmit}/>
+      <FaceRecognition imageURL={imageURL}/>
     </div>
   )
 }
