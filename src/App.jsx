@@ -11,7 +11,7 @@ import './App.css';
 import Clarifai from "clarifai";
 
 const app = new Clarifai.App({
-    apiKey: 'fcd32579849648128bc56ebad0535040'
+    apiKey: ''
    });
 
 // Section that I can't put anywhere else about the settings of my backgroud particles
@@ -118,18 +118,18 @@ function App() {
         setImageURL(input);
         console.log('click');
         
-        app.models
-        .predict(
-          {
-            id: 'face-detection',
-            name: 'face-detection',
-            version: '6dc7e46bc9124c5c8824be4822abe105',
-            type: 'visual-detector',
-          }, input)
-        .then(response => {
-          console.log('hi', response)
-        })
-        .catch(err => console.log(err));
+        // app.models
+        // .predict(
+        //   {
+        //     id: 'face-detection',
+        //     name: 'face-detection',
+        //     version: '6dc7e46bc9124c5c8824be4822abe105',
+        //     type: 'visual-detector',
+        //   }, input)
+        // .then(response => {
+        //   console.log('hi', response)
+        // })
+        // .catch(err => console.log(err));
     }
 
 
