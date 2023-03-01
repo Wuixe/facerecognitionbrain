@@ -17,14 +17,18 @@ function App() {
     const [imageURL, setImageURL] = useState('');
 
 
-    const PAT = '';
+    const PAT = 'd3ef2d5c8d1c43daa605c92d9154056e';
     const USER_ID = 'clarifai';       
     const APP_ID = 'main';
     const MODEL_ID = 'face-detection';    
     const IMAGE_URL = 'https://images.pexels.com/photos/2422290/pexels-photo-2422290.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2';
 
 
-    
+    const getTrueData = (result) => {
+        const trueData = JSON.parse(result).outputs[0].data;
+        console.log(trueData);
+      }
+      
 
 
     const onInputChange = (e) => {
@@ -61,8 +65,8 @@ function App() {
         };
         
         fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs", requestOptions)
-        .then(response => response)
-        .then(result => console.log(result))
+        .then(response => response.text())
+        .then(result => getTrueData(result))
         .catch(error => console.log('error', error));
     }
 
