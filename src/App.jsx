@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Navigation from './components/Navigation/Navigation.jsx';
 import Logo from './components/Logo/Logo.jsx';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm.jsx';
 import Rank from './components/Rank/Rank.jsx';
-import { useCallback } from "react";
 import ParticlesBg from 'particles-bg'
 import FaceRecognition from './components/FaceRecognition/FaceRecognition.jsx';
 import './App.css';
@@ -15,21 +14,39 @@ function App() {
     //state
     const [input, setInput] = useState('');
     const [imageURL, setImageURL] = useState('');
+    const [box, setBox] = useState({});
 
 
     const PAT = '';
     const USER_ID = 'clarifai';       
     const APP_ID = 'main';
     const MODEL_ID = 'face-detection';    
-    const IMAGE_URL = 'https://images.pexels.com/photos/2422290/pexels-photo-2422290.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2';
 
 
-    const getTrueData = (result) => {
-        const trueData = JSON.parse(result).outputs[0].data;
-        console.log(trueData);
-      }
+    const calculateFaceLocation = (result) => {
+        const data = JSON.parse(result).outputs[0].data.regions;
+        const clarifaiFace = data[0].region_info.bounding_box;
+        const image = document.getElementById('inputimage');
+        const width = Number(image.width);
+        const height = Number(image.height);
+        // console.log(data)
+        // console.log(clarifaiFace)
+        return {
+            leftCol : Number(clarifaiFace.left_col) * width,
+            topRow : Number(clarifaiFace.top_row)* height,
+            rightCol : width - (Number(clarifaiFace.right_col) * width),
+            bottomRow : height - (Number(clarifaiFace.bottom_row) * height)
+        }
+
+    }
+
+    const displayFaceBox = useCallback((object) => {
+        console.log(object);
+        setBox(object);
+    }, []);
+    
+    
       
-
 
     const onInputChange = (e) => {
         setInput(e.target.value);
@@ -48,7 +65,7 @@ function App() {
                 {
                     "data": {
                         "image": {
-                            "url": IMAGE_URL
+                            "url": input
                         }
                     }
                 }
@@ -66,7 +83,7 @@ function App() {
         
         fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs", requestOptions)
         .then(response => response.text())
-        .then(result => getTrueData(result))
+        .then(result => displayFaceBox(calculateFaceLocation(result)))
         .catch(error => console.log('error', error));
     }
 
@@ -79,7 +96,8 @@ function App() {
       <Logo />
       <Rank/>
       <ImageLinkForm onInputChange={onInputChange} onSubmit={onSubmit}/>
-      <FaceRecognition imageURL={imageURL}/>
+      <p>{JSON.stringify(box)}</p>
+      <FaceRecognition box={box} imageURL={imageURL}/>
     </div>
   )
 }
