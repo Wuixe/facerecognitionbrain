@@ -16,12 +16,12 @@ function App() {
     //state
     const [input, setInput] = useState('');
     const [imageURL, setImageURL] = useState('');
-    const [box, setBox] = useState({});
+    const [boxes, setBoxes] = useState([]);
     const [route, setRoute] = useState('signin');
     const [isSignedIn, setIsSignedIn] = useState(false);
 
 
-    const PAT = 'd3ef2d5c8d1c43daa605c92d9154056e';
+    const PAT = '';
     const USER_ID = 'clarifai';       
     const APP_ID = 'main';
     const MODEL_ID = 'face-detection';    
@@ -29,24 +29,38 @@ function App() {
 
     const calculateFaceLocation = (result) => {
         const data = JSON.parse(result).outputs[0].data.regions;
-        const clarifaiFace = data[0].region_info.bounding_box;
+
+        
         const image = document.getElementById('inputimage');
         const width = Number(image.width);
         const height = Number(image.height);
         // console.log(data)
         // console.log(clarifaiFace)
-        return {
-            leftCol : Number(clarifaiFace.left_col) * width,
-            topRow : Number(clarifaiFace.top_row)* height,
-            rightCol : width - (Number(clarifaiFace.right_col) * width),
-            bottomRow : height - (Number(clarifaiFace.bottom_row) * height)
-        }
+        
+        let boxArray = [];
+        // console.log(data);
+        data.map((item, key) => {
+            // console.log(item)
+            const clarifaiFace = item.region_info.bounding_box;
+            boxArray.push({
+                leftCol : Number(clarifaiFace.left_col) * width,
+                topRow : Number(clarifaiFace.top_row)* height,
+                rightCol : width - (Number(clarifaiFace.right_col) * width),
+                bottomRow : height - (Number(clarifaiFace.bottom_row) * height)
+            })
+            // console.log(boxArray)
+        })
+            
+            
+        
+
+        return boxArray;
 
     }
 
-    const displayFaceBox = useCallback((object) => {
-        console.log(object);
-        setBox(object);
+    const displayFaceBox = useCallback((boxArray) => {
+        // console.log(boxArray);
+        setBoxes(boxArray);
     }, []);
     
     
@@ -58,7 +72,7 @@ function App() {
 
     const onSubmit = () => {
         setImageURL(input);
-        console.log('click');
+        // console.log('click');
 
         const raw = JSON.stringify({
             "user_app_id": {
@@ -107,7 +121,8 @@ function App() {
                 <Logo />
                 <Rank />
                 <ImageLinkForm onInputChange={onInputChange} onSubmit={onSubmit} />
-                <FaceRecognition box={box} imageURL={imageURL} />
+                {/* <p>{JSON.stringify(boxes)}</p> */}
+                <FaceRecognition boxes={boxes} imageURL={imageURL} />
             </> :
             route === 'signin' ? <Signin onRouteChange={onRouteChange}/> :
             <Register onRouteChange={onRouteChange}/> 
