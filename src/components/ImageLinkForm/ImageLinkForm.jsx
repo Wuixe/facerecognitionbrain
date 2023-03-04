@@ -4,7 +4,7 @@ const ImageLinkForm = ({onInputChange, onSubmit}) => {
     return ( 
         <div className="flex items-center  flex-col">
             <p className="text-lg flex justify-center">{'This Magic Brain will detext faces in your pictures. Give it a try!'}</p>
-            <div className="w-1/2 mt-2 flex justify-center shadow-lg p-7 form rounded-md ">
+            <div className="lg:w-1/2 mt-2 md:w-auto flex justify-center shadow-lg p-7 form rounded-md ">
                 <input className="text-xl p-2 w-3/4" type='text' onChange={onInputChange} />
                 <button type="button"
                 onClick={onSubmit} 

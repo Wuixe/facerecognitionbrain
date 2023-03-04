@@ -6,6 +6,8 @@ import Rank from './components/Rank/Rank.jsx';
 import ParticlesBg from 'particles-bg'
 import FaceRecognition from './components/FaceRecognition/FaceRecognition.jsx';
 import './App.css';
+import Signin from './components/Signin/Signin.jsx';
+import Register from './components/Register/Register.jsx';
 
 
 
@@ -15,9 +17,11 @@ function App() {
     const [input, setInput] = useState('');
     const [imageURL, setImageURL] = useState('');
     const [box, setBox] = useState({});
+    const [route, setRoute] = useState('signin');
+    const [isSignedIn, setIsSignedIn] = useState(false);
 
 
-    const PAT = '';
+    const PAT = 'd3ef2d5c8d1c43daa605c92d9154056e';
     const USER_ID = 'clarifai';       
     const APP_ID = 'main';
     const MODEL_ID = 'face-detection';    
@@ -89,17 +93,27 @@ function App() {
 
 
 
+    const onRouteChange = (rt) => {
+
+        rt === 'home'? setIsSignedIn(true) : setIsSignedIn(false);
+        setRoute(rt);
+    }
+
       return (
-    <div className="App">
-      <ParticlesBg color="#FFFFFF" num={50} type="cobweb" bg={true} />
-      <Navigation />
-      <Logo />
-      <Rank/>
-      <ImageLinkForm onInputChange={onInputChange} onSubmit={onSubmit}/>
-      <p>{JSON.stringify(box)}</p>
-      <FaceRecognition box={box} imageURL={imageURL}/>
-    </div>
-  )
+        <div className="App"> 
+          <ParticlesBg color="#FFFFFF" num={50} type="cobweb" bg={true} />
+          <Navigation onRouteChange={onRouteChange} isSignedIn={isSignedIn} />
+          {route === 'home' ? <>
+                <Logo />
+                <Rank />
+                <ImageLinkForm onInputChange={onInputChange} onSubmit={onSubmit} />
+                <FaceRecognition box={box} imageURL={imageURL} />
+            </> :
+            route === 'signin' ? <Signin onRouteChange={onRouteChange}/> :
+            <Register onRouteChange={onRouteChange}/> 
+            }
+        </div>
+      );
 }
 
 export default App
