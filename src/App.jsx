@@ -18,10 +18,11 @@ function App() {
     const [imageURL, setImageURL] = useState('');
     const [boxes, setBoxes] = useState([]);
     const [route, setRoute] = useState('signin');
+    const [isImage, setIsImage] = useState(true)
     const [isSignedIn, setIsSignedIn] = useState(false);
 
 
-    const PAT = '';
+    const PAT = 'd3ef2d5c8d1c43daa605c92d9154056e';
     const USER_ID = 'clarifai';       
     const APP_ID = 'main';
     const MODEL_ID = 'face-detection';    
@@ -50,10 +51,6 @@ function App() {
             })
             // console.log(boxArray)
         })
-            
-            
-        
-
         return boxArray;
 
     }
@@ -63,16 +60,25 @@ function App() {
         setBoxes(boxArray);
     }, []);
     
-    
+    const testURL = async () => {
+        try {
+            const response = await fetch(input);
+            const contentType = response.headers.get('Content-Type');
+            return contentType.startsWith('image/');
+        }catch (error) {
+            return false;
+        }
+    }
       
 
     const onInputChange = (e) => {
         setInput(e.target.value);
     }
 
-    const onSubmit = () => {
+    const onSubmit = async() => {
         setImageURL(input);
         // console.log('click');
+        const isImageUrl = await testURL(input);
 
         const raw = JSON.stringify({
             "user_app_id": {
@@ -99,10 +105,14 @@ function App() {
             body: raw
         };
         
-        fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs", requestOptions)
-        .then(response => response.text())
-        .then(result => displayFaceBox(calculateFaceLocation(result)))
-        .catch(error => console.log('error', error));
+        if (isImageUrl){
+            setIsImage(true);
+            fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs", requestOptions)
+            .then(response => response.text())
+            .then(result => displayFaceBox(calculateFaceLocation(result)))
+            .catch(error => console.log('error', error));
+        }
+        else setIsImage(false);
     }
 
 
@@ -121,8 +131,11 @@ function App() {
                 <Logo />
                 <Rank />
                 <ImageLinkForm onInputChange={onInputChange} onSubmit={onSubmit} />
-                {/* <p>{JSON.stringify(boxes)}</p> */}
-                <FaceRecognition boxes={boxes} imageURL={imageURL} />
+                {
+                    isImage ? <FaceRecognition boxes={boxes} imageURL={imageURL} /> :
+                    <p className='flex justify-center p-3 text-xl font-bold text-red-700'>Please enter a valid image URL</p>
+                }
+                
             </> :
             route === 'signin' ? <Signin onRouteChange={onRouteChange}/> :
             <Register onRouteChange={onRouteChange}/> 
