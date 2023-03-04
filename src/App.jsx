@@ -22,7 +22,7 @@ function App() {
     const [isSignedIn, setIsSignedIn] = useState(false);
 
 
-    const PAT = 'd3ef2d5c8d1c43daa605c92d9154056e';
+    const PAT = '';
     const USER_ID = 'clarifai';       
     const APP_ID = 'main';
     const MODEL_ID = 'face-detection';    
